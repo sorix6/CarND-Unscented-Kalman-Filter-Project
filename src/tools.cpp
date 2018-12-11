@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "tools.h"
 
 using Eigen::VectorXd;

@@ -1,6 +1,8 @@
 #include "ukf.h"
 #include "Eigen/Dense"
 #include <iostream>
+#include <fstream>
+#include "tools.h"
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -12,6 +14,7 @@ using std::vector;
  * This is scaffolding, do not modify
  */
 UKF::UKF() {
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -25,7 +28,7 @@ UKF::UKF() {
   n_aug_ = 7;
 
   // Sigma point spreading parameter
-  lambda_ = 3.0 - n_x_;
+  lambda_ = 3.0 - n_aug_;
 
   // Previous timestamp
   time_us_ = 0.0;
@@ -47,7 +50,7 @@ UKF::UKF() {
   std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.3;
+  std_yawdd_ = M_PI/6;
   
   //DO NOT MODIFY measurement noise values below these are provided by the sensor manufacturer.
   // Laser measurement noise standard deviation position1 in m
@@ -105,7 +108,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
    ****************************************************************************/
   if (!is_initialized_) {
 
-    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
+    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
@@ -116,7 +119,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
      x_ <<  rho * cos(phi), rho * sin(phi), rhodot * cos(phi), rhodot * sin(phi), 0;
      
     }
-    else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
+    else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 
       // set the state with the initial location and zero velocity,yaw angle and yaw rate 
       x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0, 0;
@@ -147,11 +150,11 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 
   Prediction(delta_t);
 
-  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
     // Radar updates
     UpdateRadar(measurement_pack);
   } 
-  else {
+  if (measurement_pack.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
     // Laser updates
     UpdateLidar(measurement_pack);
   }
@@ -322,7 +325,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 
     // measurement model
     Zsig(0,i) = Xsig_pred_(0, i);                      // px
-    Zsig(1,i) = Xsig_pred_(1, i);                                 //py
+    Zsig(1,i) = Xsig_pred_(1, i);                      // py
 
   }
   
@@ -378,7 +381,12 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 
   // compute the NIS
   NIS_lidar_ = z_diff.transpose() * S.inverse() * z_diff;
-
+  ofstream myfile;
+	myfile.open("lidar_2.txt", std::ios_base::app);
+	myfile <<"1,"<<NIS_lidar_<<"\n";
+	
+	myfile.close();
+  
   
 }
 
@@ -421,8 +429,8 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
     double v2 = sin(yaw)*v;
 
     // measurement model
-    Zsig(0,i) = sqrt(p_x * p_x + p_y * p_y);                        //r
-    Zsig(1,i) = atan2(p_y, p_x);                                 //phi
+    Zsig(0,i) = sqrt(p_x * p_x + p_y * p_y);                            //r
+    Zsig(1,i) = atan2(p_y, p_x);                                        //phi
     Zsig(2,i) = (p_x * v1 + p_y * v2 ) / sqrt(p_x * p_x + p_y * p_y);   //r_dot
   }
 
@@ -490,4 +498,10 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
 
   // compute the NIS
   NIS_radar_ = z_diff.transpose() * S.inverse() * z_diff;
+  ofstream myfile;
+	myfile.open("lidar_2.txt", std::ios_base::app);
+	myfile <<"0,"<<NIS_radar_<<"\n";
+	
+	myfile.close();
+	
 }

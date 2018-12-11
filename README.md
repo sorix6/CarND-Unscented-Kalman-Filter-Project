@@ -1,92 +1,44 @@
-# Unscented Kalman Filter Project Starter Code
-Self-Driving Car Engineer Nanodegree Program
+# Extended Kalman Filter Project 
 
-In this project utilize an Unscented Kalman Filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
+This project consists of using an Unscented Kalman filter to estimate the state of a moving object with noisy Lidar and Radar measurements.
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
-
-This repository includes two files that can be used to set up and intall [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see [this concept in the classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77) for the required version and installation scripts.
-
-Once the install for uWebSocketIO is complete, the main program can be built and ran by doing the following from the project top directory.
-
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./UnscentedKF
-
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-
-Note that the programs that need to be written to accomplish the project are src/ukf.cpp, src/ukf.h, tools.cpp, and tools.h
-
-The program main.cpp has already been filled out, but feel free to modify it.
-
-Here is the main protocol that main.cpp uses for uWebSocketIO in communicating with the simulator.
+The project consists of the following steps:
+* Initializing the Unscented Kalman filter
+* Predicting where the object will be after a time lapse of Δt
+* Updating the object position based on the measurements received from the sensors
+* Tunning the process noise
 
 
-INPUT: values provided by the simulator to the c++ program
+The code has been developed on an Ubuntu 16.04 Virtual Machine running on Oracle VM VirtualBox.
+The Term 2 Simulator has been run on the same virtual machine.
 
-["sensor_measurement"] => the measurment that the simulator observed (either lidar or radar)
+The executable file compiled for this project can be found in the folder **build**, under the name **UnscentedKF**
 
 
-OUTPUT: values provided by the c++ program to the simulator
+The pictures below, shows print-screen of the simulator for the two datasets.
+* The red circles represent the Lidar measurements 
+* The blue circles represent the radar measurements and the arrow points in the direction of the observed angle
+* The green triangles represent the estimation markers 
 
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
+![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/rmse_d1.PNG) | ![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/rmse_d2.PNG) 
 
----
 
-## Other Important Dependencies
-* cmake >= 3.5
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
+Consistency checks have been done and the images below provide the graphs for the NIS radar and lidar, respectively:
+![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/nis_radar.PNG) | ![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/nis_lidar.PNG) 
 
-## Basic Build Instructions
+Tests have been also run by using alternatively, only radar or lidar measurements. Some results can be seen below: 
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./UnscentedKF` Previous versions use i/o from text files.  The current state uses i/o
-from the simulator.
+![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/radar_only.PNG) | ![Simulator print-screen](https://raw.githubusercontent.com/sorix6/CarND-Unscented-Kalman-Filter-Project/master/images/lidar_only.PNG) 
 
-## Editor Settings
+The process noise standard deviation longitudinal acceleration in m/s^2 (std_a_) and the process noise standard deviation yaw acceleration in rad/s^2(std_yawdd_) have been chosen through testing. The values have been set as follows:
+* std_a_ = 2 m/s^2
+* std_yawdd_ = M_PI/6 rad/s^2
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
 
-## Code Style
 
-Please stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html) as much as possible.
 
-## Generating Additional Data
 
-This is optional!
 
-If you'd like to generate your own radar and lidar data, see the
-[utilities repo](https://github.com/udacity/CarND-Mercedes-SF-Utilities) for
-Matlab scripts that can generate additional data.
 
-## Project Instructions and Rubric
-
-This information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/c3eb3583-17b2-4d83-abf7-d852ae1b9fff/concepts/f437b8b0-f2d8-43b0-9662-72ac4e4029c1)
-for instructions and the project rubric.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
 
